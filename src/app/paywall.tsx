@@ -5,7 +5,8 @@ import { router } from 'expo-router';
 import { colors, fonts } from '../theme';
 import { Button } from '../components/ui';
 import { useApp } from '../lib/AppState';
-import { PLANS, loadPlans, purchase, restore, type Plan, type PlanId } from '../lib/purchases';
+import { scheduleTrialReminder } from '../lib/notifications';
+import { PLANS, loadPlans, purchase, purchasesEnabled, restore, type Plan, type PlanId } from '../lib/purchases';
 
 const PERKS = ['Günde 5 kişisel mesaj', '15 konunun hepsi', 'Sınırsız favori ve yeni mesajlar', 'Reklam yok, hiçbir zaman'];
 
@@ -29,6 +30,7 @@ export default function Paywall() {
     try {
       if (await purchase(plan)) {
         setPremium(true);
+        if (purchasesEnabled && selected.trialDays) scheduleTrialReminder(selected.trialDays).catch(() => {});
         close();
       }
     } catch {

@@ -4,6 +4,7 @@ import type { Profile } from '../data/quiz';
 import { pickMessage } from './picker';
 
 const CHANNEL_ID = 'daily';
+const TRIAL_REMINDER_ID = 'trial-reminder';
 /** iOS keeps at most 64 pending local notifications, so we schedule a rolling week. */
 const DAYS_AHEAD = 7;
 
@@ -42,7 +43,13 @@ export async function ensurePermission(): Promise<boolean> {
  * Call after onboarding, after a settings change, and on every app open.
  */
 export async function scheduleWeek(profile: Profile, premium: boolean): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  // Replace the daily messages but keep the trial reminder.
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  await Promise.all(
+    scheduled
+      .filter((n) => n.identifier !== TRIAL_REMINDER_ID)
+      .map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)),
+  );
   const perDay = premium ? profile.perDay : 1;
   const now = new Date();
 
@@ -70,4 +77,22 @@ export async function scheduleWeek(profile: Profile, premium: boolean): Promise<
       });
     }
   }
+}
+
+/**
+ * Reminds the user one day before a free trial ends, as promised on the paywall.
+ * Safe to call more than once: it replaces any earlier reminder.
+ */
+export async function scheduleTrialReminder(trialDays: number): Promise<void> {
+  if (!(await ensurePermission())) return;
+  const at = new Date(Date.now() + (trialDays - 1) * 24 * 60 * 60 * 1000);
+  await Notifications.cancelScheduledNotificationAsync(TRIAL_REMINDER_ID).catch(() => {});
+  await Notifications.scheduleNotificationAsync({
+    identifier: TRIAL_REMINDER_ID,
+    content: {
+      title: 'Ücretsiz denemen yarın bitiyor',
+      body: 'Devam etmek istemezsen aboneliğini bugün mağaza ayarlarından iptal edebilirsin.',
+    },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at, channelId: CHANNEL_ID },
+  });
 }

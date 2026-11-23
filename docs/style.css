@@ -31,3 +31,4 @@ h2 { font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 24px; m
 ul.features { padding-left: 20px; }
 .updated { color: var(--muted); font-size: 15px; }
 footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 15px; display: flex; flex-wrap: wrap; gap: 16px; }
+h3 { font-size: 18px; margin: 24px 0 4px; }
