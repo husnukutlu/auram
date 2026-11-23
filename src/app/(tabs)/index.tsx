@@ -51,7 +51,7 @@ export default function Today() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>Bugünün mesajı · {topic.title}</Text>
+          <Text style={styles.cardLabel}>{`Bugünün mesajı · ${topic.title}`.toLocaleUpperCase('tr-TR')}</Text>
           <Text style={styles.cardText}>{message.text}</Text>
           <View style={styles.cardActions}>
             <Pressable
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   streakText: { fontFamily: fonts.medium, fontSize: 13, color: colors.goldDark },
   card: { minHeight: 420, borderRadius: 28, backgroundColor: colors.rose, padding: 28, justifyContent: 'space-between', gap: 24 },
-  cardLabel: { fontFamily: fonts.medium, fontSize: 13, letterSpacing: 1, color: colors.white, textTransform: 'uppercase' },
+  cardLabel: { fontFamily: fonts.medium, fontSize: 13, letterSpacing: 1, color: colors.white },
   cardText: { fontFamily: fonts.displayRegular, fontSize: 30, lineHeight: 39, color: colors.white },
   cardActions: { flexDirection: 'row', gap: 12 },
   ghost: {
