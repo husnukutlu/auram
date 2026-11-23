@@ -1,6 +1,7 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Profile } from '../data/quiz';
 import * as store from './storage';
+import { initPurchases, purchasesEnabled } from './purchases';
 
 type AppState = {
   profile: Profile | null;
@@ -37,10 +38,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Premium comes from RevenueCat on store builds; cached locally for offline starts.
+  useEffect(() => {
+    initPurchases((p) => setPremium(p))
+      .then((p) => setPremium(p))
+      .catch(() => {});
+  }, [setPremium]);
+
   const reset = useCallback(() => {
+    const keepPremium = purchasesEnabled && store.getPremiumFlag();
     store.resetAll();
     setProfileState(null);
-    setPremiumState(false);
+    // A real subscription survives "start over"; only the simulated flag is cleared.
+    if (keepPremium) store.savePremiumFlag(true);
+    setPremiumState(keepPremium);
     setFavorites([]);
   }, []);
 

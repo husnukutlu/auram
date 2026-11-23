@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, fonts } from '../theme';
 import { Button } from '../components/ui';
 import { useApp } from '../lib/AppState';
-import { PLANS, purchase, restore, type PlanId } from '../lib/purchases';
+import { PLANS, loadPlans, purchase, restore, type Plan, type PlanId } from '../lib/purchases';
 
 const PERKS = ['Günde 5 kişisel mesaj', '15 konunun hepsi', 'Sınırsız favori ve yeni mesajlar', 'Reklam yok, hiçbir zaman'];
 
@@ -13,26 +13,42 @@ export default function Paywall() {
   const { profile, setPremium } = useApp();
   const [plan, setPlan] = useState<PlanId>('yearly');
   const [busy, setBusy] = useState(false);
-  const selected = PLANS.find((p) => p.id === plan)!;
+  const [plans, setPlans] = useState<Plan[]>(PLANS);
+  const [error, setError] = useState<string | null>(null);
+  const selected = plans.find((p) => p.id === plan)!;
+
+  useEffect(() => {
+    loadPlans().then(setPlans);
+  }, []);
 
   const close = () => (router.canGoBack() ? router.back() : router.replace('/(tabs)'));
 
   async function buy() {
     setBusy(true);
+    setError(null);
     try {
       if (await purchase(plan)) {
         setPremium(true);
         close();
       }
+    } catch {
+      setError('Satın alma tamamlanamadı. Lütfen tekrar dene.');
     } finally {
       setBusy(false);
     }
   }
 
   async function onRestore() {
-    if (await restore()) {
-      setPremium(true);
-      close();
+    setError(null);
+    try {
+      if (await restore()) {
+        setPremium(true);
+        close();
+      } else {
+        setError('Geri yüklenecek bir satın alma bulunamadı.');
+      }
+    } catch {
+      setError('Geri yükleme başarısız oldu. Lütfen tekrar dene.');
     }
   }
 
@@ -55,7 +71,7 @@ export default function Paywall() {
           ))}
         </View>
         <View style={{ gap: 14 }}>
-          {PLANS.map((p) => {
+          {plans.map((p) => {
             const on = p.id === plan;
             return (
               <Pressable
@@ -81,6 +97,7 @@ export default function Paywall() {
         </View>
       </ScrollView>
       <View style={styles.footer}>
+        {error && <Text style={styles.error}>{error}</Text>}
         <Button
           label={busy ? 'Bekle…' : selected.trialDays ? `${selected.trialDays} gün ücretsiz başla` : 'Devam et'}
           onPress={buy}
@@ -90,9 +107,17 @@ export default function Paywall() {
           {selected.trialDays ? 'Deneme bitmeden 1 gün önce sana hatırlatırız. ' : ''}
           Abonelik, iptal edilmediği sürece otomatik yenilenir.
         </Text>
-        <Pressable accessibilityRole="button" onPress={onRestore} style={styles.restore}>
-          <Text style={styles.restoreText}>Satın alımları geri yükle</Text>
-        </Pressable>
+        <View style={styles.links}>
+          <Pressable accessibilityRole="button" onPress={onRestore} style={styles.restore}>
+            <Text style={styles.restoreText}>Geri yükle</Text>
+          </Pressable>
+          <Pressable accessibilityRole="link" onPress={() => Linking.openURL('https://auram.today/kosullar')} style={styles.restore}>
+            <Text style={styles.restoreText}>Kullanım Koşulları</Text>
+          </Pressable>
+          <Pressable accessibilityRole="link" onPress={() => Linking.openURL('https://auram.today/gizlilik')} style={styles.restore}>
+            <Text style={styles.restoreText}>Gizlilik</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -124,7 +149,9 @@ const styles = StyleSheet.create({
   planNote: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
   planPrice: { fontFamily: fonts.semibold, fontSize: 17, color: colors.ink },
   footer: { paddingHorizontal: 24, paddingBottom: 12, gap: 8 },
+  error: { fontFamily: fonts.medium, fontSize: 13, color: colors.rose, textAlign: 'center' },
   legal: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, textAlign: 'center' },
+  links: { flexDirection: 'row', justifyContent: 'center', gap: 16 },
   restore: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   restoreText: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted, textDecorationLine: 'underline' },
 });
