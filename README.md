@@ -22,9 +22,9 @@ Scan the QR code with Expo Go on your phone. Local notifications work in Expo Go
 
 ## Before release
 
-1. **Purchases**: `src/lib/purchases.ts` simulates buying with a local flag. Replace it with RevenueCat (`react-native-purchases`) and create the products `auram_premium_monthly`, `auram_premium_yearly`, `auram_premium_lifetime` in App Store Connect and Google Play Console. This needs a development build (`npx eas-cli@latest build --profile development`).
+1. **Purchases**: RevenueCat is wired in `src/lib/purchases.ts`. Create the products `auram_premium_monthly`, `auram_premium_yearly` (7-day trial) and `auram_premium_lifetime` in App Store Connect and Google Play Console, add them to a RevenueCat offering with the entitlement `premium`, and put the public SDK keys in `.env` (see `.env.example`). Without keys, or in Expo Go, purchases are simulated. Test real purchases on a development build: `npx eas-cli@latest build --profile development`.
 2. **Identifiers**: `app.json` uses `today.auram.app` (iOS and Android), based on the domain auram.today. Once a store build uses it, it can't change.
-3. **Icon and splash**: replace the default images in `assets/`.
+3. **Website**: `docs/` holds the auram.today landing page, privacy policy (`/gizlilik`) and terms (`/kosullar`). Publish with GitHub Pages (Settings → Pages → branch `main`, folder `/docs`) and point the domain's DNS to GitHub Pages. Set up the `destek@auram.today` mailbox.
 4. **Story backgrounds**: add the topic image library (planned) to `StoryCard`.
 
 ## Project layout
