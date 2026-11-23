@@ -34,7 +34,7 @@ export function StoryCard({ message, width, ref }: { message: Message; width: nu
       </View>
       <View style={{ alignItems: 'center', gap: 4 * s }}>
         <Text style={[styles.brand, { fontSize: 22 * s }]}>AURAM</Text>
-        <Text style={[styles.handle, { fontSize: 12 * s }]}>@auram.app</Text>
+        <Text style={[styles.handle, { fontSize: 12 * s }]}>@auram.today</Text>
       </View>
     </View>
   );

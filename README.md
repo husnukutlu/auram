@@ -23,7 +23,7 @@ Scan the QR code with Expo Go on your phone. Local notifications work in Expo Go
 ## Before release
 
 1. **Purchases**: `src/lib/purchases.ts` simulates buying with a local flag. Replace it with RevenueCat (`react-native-purchases`) and create the products `auram_premium_monthly`, `auram_premium_yearly`, `auram_premium_lifetime` in App Store Connect and Google Play Console. This needs a development build (`npx eas-cli@latest build --profile development`).
-2. **Identifiers**: `app.json` uses `app.auram.ios` and `app.auram` as placeholders. Change them to your own.
+2. **Identifiers**: `app.json` uses `today.auram.app` (iOS and Android), based on the domain auram.today. Once a store build uses it, it can't change.
 3. **Icon and splash**: replace the default images in `assets/`.
 4. **Story backgrounds**: add the topic image library (planned) to `StoryCard`.
 
