@@ -28,7 +28,16 @@
       "expo-sharing",
       "expo-sqlite",
       "expo-font",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FBF4F1"
+        }
+      ]
     ],
     "scheme": "auram",
     "experiments": {

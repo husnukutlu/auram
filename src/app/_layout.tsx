@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { useFonts, Fraunces_400Regular, Fraunces_600SemiBold } from '@expo-google-fonts/fraunces';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { AppStateProvider, useApp } from '../lib/AppState';
 import { scheduleWeek } from '../lib/notifications';
 import { colors } from '../theme';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 /** Refreshes the rolling week of notifications every time the app starts. */
 function NotificationRefresher() {
@@ -24,6 +27,9 @@ export default function RootLayout() {
     Inter_500Medium,
     Inter_600SemiBold,
   });
+  useEffect(() => {
+    if (loaded || error) SplashScreen.hideAsync().catch(() => {});
+  }, [loaded, error]);
   if (!loaded && !error) return null;
 
   return (
